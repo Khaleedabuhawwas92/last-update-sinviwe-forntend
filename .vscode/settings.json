@@ -1,0 +1,9 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#015225",
+    "titleBar.activeBackground": "#01723d",
+    "titleBar.activeForeground": "#FFFAF8"
+  },
+  "editor.formatOnSave": true,
+  "dart.previewHotReloadOnSaveWatcher": true
+}
