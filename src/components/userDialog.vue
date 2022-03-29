@@ -9,7 +9,7 @@ v-dialog(
     v-toolbar(dark="", color="#012e48")
       v-btn(icon="", dark="", @click="clickHandler")
         v-icon mdi-close
-      v-toolbar-title Settings
+      v-toolbar-title {{loggedInUser.name}}
       v-spacer
       v-toolbar-items
         v-btn(dark="", text="", @click="clickHandler")
@@ -47,8 +47,12 @@ v-dialog(
           v-list-item-subtitle Automatically add home screen widgets
 </template>
 <script>
+import {  mapGetters } from "vuex";
 export default {
   props: ["dialogUser"],
+  computed:{
+    ...mapGetters(["isAuthenticated", "loggedInUser"]),
+  },
   methods: {
     clickHandler(e) {
       this.$emit("toggle");

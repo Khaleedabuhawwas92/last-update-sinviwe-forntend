@@ -7,7 +7,7 @@
       span(v-GE-Hili-font, v-fontSize.bold.color="20") خروج
       v-icon(@click="dialogClose = true", x-large="") mdi-exit-to-app
 
-    v-btn(@click="dialogReport = true", v-if="loggedInUser.isAdmain")
+    v-btn(@click="dialogReport = true", )
       span(v-GE-Hili-font, v-fontSize.bold.color="20") التقارير
       v-icon(x-large="") mdi-chart-box
     v-btn(@click="dialogPurchases = true")

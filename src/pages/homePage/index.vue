@@ -1,6 +1,5 @@
 <template lang="pug">
 .homePage(v-if="isAuthenticated")
-
   <navigationBar  :items="items" @toggle ="halooo" :price="price" />
   v-tabs.commint(
     background-color="#e74c3c",
@@ -66,6 +65,7 @@
               v-col.price(v-model="value2", col="2") {{ itemRow.price }}
               v-col(cols="2")
                 v-icon.price(
+
                   color="#012e48",
                   @click="removeElement(index, itemRow.price)"
                 )
@@ -193,9 +193,6 @@
           | Save
 </template>
 <script >
-import { interval } from "rxjs";
-import { map, filter } from "rxjs/operators";
-
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 export default {
   props: ["current"],
@@ -269,7 +266,6 @@ export default {
   },
 
   async fetch() {
-    // this.find(JSON.parse(this.queryJson));
     await this.$axios.get("http://localhost:8000/api/items").then((result) => {
       this.items = result.data;
     });
