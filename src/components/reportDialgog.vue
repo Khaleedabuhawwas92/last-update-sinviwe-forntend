@@ -4,31 +4,40 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
     v-toolbar(dark, color="#012e48", height="100px", background-color="red")
       v-btn(icon="", @click="clickHandler")
         v-icon mdi-close
-      v-toolbar-title التقارير
-
+      v-toolbar-title.text-h4
+        | التقارير
       v-spacer
       .con
         v-tabs(v-model="tab", centered, grow, dark, background-color="#2c3e50")
           v-tabs-slider(color="#e55039")
-          v-tab(v-for="item in items2", :key="item")
+          v-tab.text-h4(v-for="item in items2", :key="item")
             | {{ item }}
-            v-icon(x-large="") mdi-chart-box
-
+            v-icon(x-large="")
     v-tabs-items(v-model="tab")
       v-tab-item
-        v-card-title.text-h5
-          | المشتريات
-        v-data-table.elevation-1(
+        v-card-title.text-h3.text-center
+          | المبيعات
+        v-text-field(
+          v-model="search",
+          append-icon="mdi-magnify",
+          label="Search",
+          single-line,
+          hide-details
+        )
+        v-data-table.elevation-1.text-h2.report-info(
           :headers="headers",
           :items="desserts",
+          :search="search",
           :items-per-page="15"
         )
-          template(v-slot:item.actions="{ item }", v-if="loggedInUser.isAdmain")
+          template(
+            v-slot:item.actions="{ item }",
+            v-if="loggedInUser.isAdmain"
+          )
             v-icon.mr-2(small="", @click="editItem(item)")
               | mdi-pencil
             v-icon(small="", @click="deleteItem(item.id)")
               | mdi-delete
-
       v-tab-item
         v-card(flat="")
           v-card-title.text-h5
@@ -49,34 +58,45 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
               | Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed hendrerit. Maecenas malesuada. Vestibulum ullamcorper mauris at ligula. Proin faucibus arcu quis ante.
             p.mb-0
               | Etiam vitae tortor. Curabitur
+      v-tab-item
+        v-card(flat="")
+          v-card-title.text-h5
+            | An even better title
+          v-card-text
+            p
+              | Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed hendrerit. Maecenas malesuada. Vestibulum ullamcorper mauris at ligula. Proin faucibus arcu quis ante.
+            p.mb-0
+              | $moment("")
 
   v-row(justify="center")
 </template>
 
 <script>
-import {  mapGetters } from "vuex";
+import { mapGetters } from "vuex";
+
 export default {
   props: ["dialogReport"],
   data() {
     return {
       tab: null,
-      search: "",
 
-      items2: ["المشتريات", "المبيعات", "المبيعات"],
+      search: "",
+      items2: ["المبيعات", "المصاريف", "المشتريات", "اجمالي الكاش "],
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       value: 1,
-      search: "",
+      date: [],
       headers: [
         {
           text: "All Items",
           align: "start",
-
           value: "allIetms",
         },
         { text: "Sumation", value: "sumation" },
         { text: "Additions", value: "additions" },
-        { text: "Created", value: "createdAt" },
+        { text: "Descraption", value: "discraption" },
         { text: "Casher Name", value: "casherName" },
+        { text: "Created", value: "createdAt" },
+
         { text: "Actions", value: "actions", sortable: false },
       ],
       desserts: [],
@@ -84,23 +104,37 @@ export default {
   },
   async fetch() {
     await this.$axios
-      .get("http://localhost:8000/api/reportItems/findPublished")
+      .get("http://localhost:8000/api/reportItems/displaypublished")
       .then((result) => {
         this.items = result.data;
-        // this.desserts= ;
-        console.log();
-
+        // this.date= result.datacreatedAt
         this.desserts = result.data;
+        this.desserts.forEach((element) => {
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY  --- hh:mm:ss a"
+          );
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   },
   methods: {
+    formatDate(date) {
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      };
+      return new Date(date).toLocaleDateString("ar", options);
+    },
     deleteItem(id) {
+      var time = new Date().getHours();
+      console.log(time);
       console.log(id);
       this.$axios
-        .get("http://localhost:8000/api/reportItems/unDisplayPublished/" + id)
+        .get("http://localhost:8000/api/reportItems/undisplaypublished/" + id)
         .then((result) => {
           console.log(result);
         })
@@ -114,7 +148,7 @@ export default {
     },
   },
   computed: {
-     ...mapGetters(["isAuthenticated", "loggedInUser"]),
+    ...mapGetters(["isAuthenticated", "loggedInUser"]),
     color() {
       switch (this.value) {
         case 0:
@@ -137,6 +171,10 @@ export default {
   font-family: "GE-Hili";
   src: url("../assets/fonts/GE-Hili-Light_15.otf");
 }
+.report-info {
+  font-weight: bold;
+}
+
 .con {
   color: rgb(5, 27, 27);
   font-family: "GE-Hili";

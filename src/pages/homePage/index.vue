@@ -1,5 +1,12 @@
 <template lang="pug">
 .homePage(v-if="isAuthenticated")
+  v-alert.closeSuccess(
+    type="success",
+    :value="success",
+    transition="scale-transition",
+    border="left"
+  )
+    | I&apos;m a shaped alert with a outline option
   <navigationBar  :items="items" @toggle ="halooo" :price="price" />
   v-tabs.commint(
     background-color="#e74c3c",
@@ -9,7 +16,6 @@
     v-GE-Hili-font
   )
     v-tab.text-h4.px-2.commint2(@click="return1(0)") طلب معلق 1
-
 
   v-alert.alert-notfations(
     :value="alert1",
@@ -65,7 +71,6 @@
               v-col.price(v-model="value2", col="2") {{ itemRow.price }}
               v-col(cols="2")
                 v-icon.price(
-
                   color="#012e48",
                   @click="removeElement(index, itemRow.price)"
                 )
@@ -158,7 +163,7 @@
         v-model="radioGroup",
         v-if="radioGroup === 'primary'"
       )
-        <Calculator :price="price"  @toggle="colseToggle"/>
+        <Calculator :price="price"  @toggle="colseToggle" :rowData="rowData" :allIetms="allIetms" :additions="additions" />
   v-dialog(max-width="600", v-model="errorMassege")
     v-card.text-center(color="#d63031")
       v-toolbar(color="red", background="red") ERORR MASSEGE
@@ -198,7 +203,8 @@ export default {
   props: ["current"],
   data() {
     return {
-      title5: [],
+      success: false,
+      allIetms: [],
       items2: [],
       value2: [],
       chooese: false,
@@ -211,8 +217,7 @@ export default {
       queryJson: "{}",
       dialogInvoice: false,
       sum: 0,
-      title: "ddd",
-      discraption: "",
+      title: "",
       additions: [],
       date: "",
       price: 0,
@@ -256,14 +261,7 @@ export default {
     ...mapGetters(["isAuthenticated", "loggedInUser"]),
   },
 
-  created() {},
-  mounted() {},
 
-  watch: {
-    price: function (val) {
-      this.price = val;
-    },
-  },
 
   async fetch() {
     await this.$axios.get("http://localhost:8000/api/items").then((result) => {
@@ -297,6 +295,10 @@ export default {
       } else {
         this.dialogInvoice = true;
       }
+      this.success = true;
+      setTimeout(() => {
+        this.success = false;
+      }, 4000);
     },
 
     clearOrder() {
@@ -371,21 +373,20 @@ export default {
     halooo(Tabindex, index) {
       if (index >= 0) {
         var my_object = new Object({
+          allIetms: this.allIetms.push(
+            this.items[Tabindex].product[index].title +"\n"
+          ),
+          discraption: this.items[Tabindex].product[index].discraption,
+          additions: this.items[Tabindex].product[index].additions,
           title: this.items[Tabindex].product[index].title,
           price: Number(this.items[Tabindex].product[index].price),
-          discraption: this.items[Tabindex].product[index].discraption,
-          sum:
-            this.price +
-            Number(this.items[Tabindex].product[index].price).toFixed(2),
-          additions: this.items2[Tabindex],
+          sum: this.price + Number(this.items[Tabindex].product[index].price),
           casher: this.loggedInUser.name,
         });
-        this.title5.push(my_object.title);
+        // this.title5.push(my_object.title);
         window.scrollBy(100, 0);
         this.rowData.push(my_object);
         this.price = my_object.price + this.price;
-        console.log(this.rowData);
-        console.log(this.title5);
       }
       new Audio(
         "http://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg"
@@ -413,6 +414,7 @@ export default {
         "http://commondatastorage.googleapis.com/codeskulptor-assets/week7-brrring.m4a"
       ).play();
       this.delete1 = false;
+      this.allIetms.splice(0);
       this.rowData.splice(0);
       this.sum = 0;
       this.price = 0;
@@ -426,13 +428,17 @@ export default {
       });
     },
   },
-
 };
 </script>
 <style scoped>
 @font-face {
   font-family: "Gideon Roman";
   src: url("../../assets/fonts/GideonRoman-Regular.ttf");
+}
+.closeSuccess {
+  position: absolute;
+  right: 0;
+  z-index: 999;
 }
 
 .homePage {
@@ -524,14 +530,15 @@ export default {
 .list {
   position: relative;
   display: flex;
+color: #000;
   justify-content: space-between;
   flex-direction: row-reverse;
   background: rgb(62, 65, 157);
   background: rgb(62, 65, 157);
   background: radial-gradient(
     circle,
-    rgb(14, 21, 224) 49%,
-    rgba(165, 188, 193, 0.6558998599439776) 89%,
+    rgb(251, 251, 251) 49%,
+    rgba(21, 129, 153, 0.656) 89%,
     rgba(9, 9, 121, 0) 98%
   );
   color: rgb(241, 236, 236);
@@ -561,6 +568,7 @@ export default {
   height: 30%;
   text-align: center;
   line-height: 1.5;
+  color:#000
 }
 
 .price {
@@ -568,6 +576,7 @@ export default {
   font-weight: bold;
   font-size: 25px;
   line-height: 1.5;
+  color: #000;
 }
 
 .num {
