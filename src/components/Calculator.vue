@@ -1,10 +1,13 @@
 <template>
+
   <div id="page">
+
+
     <div id="calc">
-      <div id="input" class="text-center">{{ current }}</div>
+      <div id="input" class="text-center p-7">{{ current }}</div>
       <h1>الرجاء ادخال القيمة</h1>
       <div class="buttons">
-        <button @click="clear">C</button>
+
 
         <button @click="buttonClick(1)">1</button>
         <button @click="buttonClick(2)">2</button>
@@ -20,6 +23,7 @@
 
         <!-- <button id="comma" @click="comma">.</button> -->
         <button id="0" @click="buttonClick(0)">0</button>
+        <button @click="clear">C</button>
         <button id="equals" @click="equals()">Enter</button>
       </div>
     </div>
@@ -50,7 +54,7 @@
 <script>
 import { mapGetters } from "vuex";
 export default {
-  props: ["price", "rowData", "dialogInvoice", "allIetms" ,"additions"],
+  props: ["price", "rowData", "dialogInvoice", "allIetms" ,"additions",],
   data() {
     return {
       vv: [],
@@ -78,6 +82,8 @@ export default {
         .post("http://localhost:8000/api/reportItems/", {
           allIetms: this.allIetms,
           sumation: this.price + this.price * this.tax,
+          totalAccount:this.price,
+          tax:this.price *this.tax,
           casherName:this.loggedInUser.name,
         })
         .then(function (response) {

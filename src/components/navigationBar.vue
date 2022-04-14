@@ -9,8 +9,11 @@
     v-btn(@click="dialogReport = true")
       span(v-GE-Hili-font, v-fontSize.bold.color="20") التقارير
       v-icon(x-large="") mdi-chart-box
+    v-btn(@click="dialogExpenses = true")
+      span(v-GE-Hili-font, v-fontSize.bold.color="20") المصاريف
+      v-icon(x-large="") mdi-cart-outline
     v-btn(@click="dialogPurchases = true")
-      span(v-GE-Hili-font, v-fontSize.bold.color="20") مشتريات
+      span(v-GE-Hili-font, v-fontSize.bold.color="20") المشتريات
       v-icon(x-large="") mdi-cart-outline
     v-btn
       span(v-GE-Hili-font, v-fontSize.bold.color="20") الرئيسة
@@ -54,6 +57,7 @@
                     v-card-text.text-h6.card-text {{ items.price }}JD
 
   <reportDialgog :dialogReport="dialogReport"  @toggle="dialogReport = !dialogReport" v-if="dialogReport" />
+  <expensesDialog :dialogExpenses="dialogExpenses"  @toggle="dialogExpenses = !dialogExpenses" v-if="dialogExpenses" />
   <purchasesDialog :dialogPurchases="dialogPurchases"  @toggle="dialogPurchases = !dialogPurchases" v-if="dialogPurchases" />
   <userDialog :dialogUser="dialogUser"  @toggle="dialogUser = !dialogUser" v-if="dialogUser" />
   <exitDialog :dialogClose="dialogClose"  @toggle="exit" v-if="dialogClose" :test="ooo" />
@@ -69,6 +73,7 @@ export default {
       dialogUser: false,
       dialogReport: false,
       dialogPurchases: false,
+      dialogExpenses: false,
       dialogClose: false,
       tab: null,
       active: false,

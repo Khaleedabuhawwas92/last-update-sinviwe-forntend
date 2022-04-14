@@ -15,7 +15,7 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
             v-icon(x-large="")
     v-tabs-items(v-model="tab")
       v-tab-item
-        v-card-title.text-h3.text-center
+        v-card-title.text-h3
           | المبيعات
         v-text-field(
           v-model="search",
@@ -28,7 +28,7 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
           :headers="headers",
           :items="desserts",
           :search="search",
-          :items-per-page="15"
+          :items-per-page="10"
         )
           template(
             v-slot:item.actions="{ item }",
@@ -36,28 +36,48 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
           )
             v-icon.mr-2(small="", @click="editItem(item)")
               | mdi-pencil
-            v-icon(small="", @click="deleteItem(item.id)")
+            v-icon(small="", @click="deleteItem(item, item.id)")
               | mdi-delete
+        v-row.total-of-report {{ totalReport }} JD
+      v-tab-item
+        v-card(flat="")
+          v-card-title.text-h3
+            | المصاريف
+          v-card-text
+            v-text-field(
+              v-model="searchexpenses",
+              append-icon="mdi-magnify",
+              label="Search",
+              single-line,
+              hide-details
+            )
+            v-data-table.elevation-1.text-h2.report-info(
+              :headers="expensesheaders",
+              :items="expenses",
+              :search="searchexpenses",
+              :items-per-page="10"
+            )
+            v-row.total-of-expenses {{ totalExpenses }} JD
+
       v-tab-item
         v-card(flat="")
           v-card-title.text-h5
-            | An awesome title
+            | المشتريات
           v-card-text
-            p
-              | Duis lobortis massa imperdiet quam. Donec vitae orci sed dolor rutrum auctor. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Praesent congue erat at massa.
-            p
-              | Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Etiam sit amet orci eget eros faucibus tincidunt. Donec sodales sagittis magna.
-            p.mb-0
-              | Ut leo. Suspendisse potenti. Duis vel nibh at velit scelerisque suscipit. Fusce pharetra convallis urna.
-      v-tab-item
-        v-card(flat="")
-          v-card-title.text-h5
-            | An even better title
-          v-card-text
-            p
-              | Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed hendrerit. Maecenas malesuada. Vestibulum ullamcorper mauris at ligula. Proin faucibus arcu quis ante.
-            p.mb-0
-              | Etiam vitae tortor. Curabitur
+            v-text-field(
+              v-model="searchexpenses",
+              append-icon="mdi-magnify",
+              label="Search",
+              single-line,
+              hide-details
+            )
+            v-data-table.elevation-1.text-h2.report-info(
+              :headers="purchaseheaders",
+              :items="purchase",
+              :search="searchexpenses",
+              :items-per-page="10"
+            )
+            v-row.total-of-purchase {{ totalPurchase }} JD
       v-tab-item
         v-card(flat="")
           v-card-title.text-h5
@@ -70,33 +90,48 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
 
   v-row(justify="center")
 </template>
-
 <script>
 import { mapGetters } from "vuex";
-
 export default {
   props: ["dialogReport"],
   data() {
     return {
       tab: null,
-
+      expenses: [],
+      purchase: [],
+      totalPurchase: 0,
+      totalExpenses: 0,
+      totalReport: 0,
       search: "",
+      searchexpenses: "",
       items2: ["المبيعات", "المصاريف", "المشتريات", "اجمالي الكاش "],
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       value: 1,
-      date: [],
+      purchaseheaders: [
+        { text: "description", value: "description" },
+        { text: "Value", value: "value" },
+        { text: "Casher Name", value: "casherName" },
+        { text: "Wheigt", value: "wheigt" },
+        { text: "Created At", value: "createdAt" },
+      ],
+      expensesheaders: [
+        { text: "description", value: "description" },
+        { text: "Value", value: "value" },
+        { text: "Casher Name", value: "casherName" },
+        { text: "Created At", value: "createdAt" },
+      ],
       headers: [
         {
           text: "All Items",
           align: "start",
           value: "allIetms",
         },
+        { text: "Total Account", value: "totalAccount" },
+        { text: "Tax", value: "tax" },
         { text: "Sumation", value: "sumation" },
-        { text: "Additions", value: "additions" },
-        { text: "Descraption", value: "discraption" },
+        // { text: "Descraption", value: "discraption" },
         { text: "Casher Name", value: "casherName" },
         { text: "Created", value: "createdAt" },
-
         { text: "Actions", value: "actions", sortable: false },
       ],
       desserts: [],
@@ -107,9 +142,23 @@ export default {
       .get("http://localhost:8000/api/reportItems/displaypublished")
       .then((result) => {
         this.items = result.data;
-        // this.date= result.datacreatedAt
         this.desserts = result.data;
         this.desserts.forEach((element) => {
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY  --- hh:mm:ss a"
+          );
+          this.totalReport += element.sumation;
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    await this.$axios
+      .get("http://localhost:8000/api/expenses/published")
+      .then((result) => {
+        this.expenses = result.data;
+        this.expenses.forEach((element) => {
+          this.totalExpenses += element.value;
           element.createdAt = this.$moment(element.createdAt).format(
             "DD/MM/YYYY  --- hh:mm:ss a"
           );
@@ -118,20 +167,23 @@ export default {
       .catch((err) => {
         console.log(err);
       });
+    await this.$axios
+      .get("http://localhost:8000/api/purchase/published")
+      .then((result) => {
+        this.purchase = result.data;
+        this.purchase.forEach((element) => {
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY  --- hh:mm:ss a"
+          );
+          this.totalPurchase += element.value;
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   },
   methods: {
-    formatDate(date) {
-      const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-      };
-      return new Date(date).toLocaleDateString("ar", options);
-    },
-    deleteItem(id) {
-      var time = new Date().getHours();
-      console.log(time);
+    deleteItem(item, id) {
       console.log(id);
       this.$axios
         .get("http://localhost:8000/api/reportItems/undisplaypublished/" + id)
@@ -142,27 +194,12 @@ export default {
           console.log(err);
         });
     },
-
     clickHandler(e) {
       this.$emit("toggle");
     },
   },
   computed: {
     ...mapGetters(["isAuthenticated", "loggedInUser"]),
-    color() {
-      switch (this.value) {
-        case 0:
-          return "#000";
-        case 1:
-          return "#000";
-        case 2:
-          return "#000";
-        case 3:
-          return "#000";
-        default:
-          return "#000";
-      }
-    },
   },
 };
 </script>
@@ -170,6 +207,27 @@ export default {
 @font-face {
   font-family: "GE-Hili";
   src: url("../assets/fonts/GE-Hili-Light_15.otf");
+}
+.total-of-purchase {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 324px;
+  font-size: 25px;
+}
+.total-of-report {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 546px;
+  font-size: 25px;
+}
+.total-of-expenses {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 397px;
+  font-size: 25px;
 }
 .report-info {
   font-weight: bold;

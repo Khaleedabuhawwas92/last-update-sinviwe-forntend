@@ -1,13 +1,7 @@
 <template lang="pug">
-.homePage(v-if="isAuthenticated")
-  v-alert.closeSuccess(
-    type="success",
-    :value="success",
-    transition="scale-transition",
-    border="left"
-  )
-    | I&apos;m a shaped alert with a outline option
+.homePage
   <navigationBar  :items="items" @toggle ="halooo" :price="price" />
+  <alertSuccess massege="تمت العملية بنجاح"  @toggle="showSuccessAlert" v-if="success"/>
   v-tabs.commint(
     background-color="#e74c3c",
     dark,
@@ -133,7 +127,7 @@
               hide-default-footer
             )
             v-row
-              v-col.sumation(cols="6", v-model="price") {{ this.price + this.price * this.tax }}
+              v-col.sumation(cols="6", v-model="price") {{ this.price + this.price * Number.parseFloat(this.tax).toFixed(2) }}
               v-col.sumation(cols="6") المجموع
           v-divider
 
@@ -261,8 +255,6 @@ export default {
     ...mapGetters(["isAuthenticated", "loggedInUser"]),
   },
 
-
-
   async fetch() {
     await this.$axios.get("http://localhost:8000/api/items").then((result) => {
       this.items = result.data;
@@ -274,6 +266,7 @@ export default {
       this.dialogInvoice = false;
       this.removeItems();
       this.current = 0;
+      this.showSuccessAlert();
     },
     colseToggle2() {
       this.dialogInvoice = false;
@@ -295,10 +288,12 @@ export default {
       } else {
         this.dialogInvoice = true;
       }
+    },
+    showSuccessAlert() {
       this.success = true;
       setTimeout(() => {
         this.success = false;
-      }, 4000);
+      }, 2500);
     },
 
     clearOrder() {
@@ -374,13 +369,14 @@ export default {
       if (index >= 0) {
         var my_object = new Object({
           allIetms: this.allIetms.push(
-            this.items[Tabindex].product[index].title +"\n"
+            this.items[Tabindex].product[index].title + "\n"
           ),
           discraption: this.items[Tabindex].product[index].discraption,
           additions: this.items[Tabindex].product[index].additions,
           title: this.items[Tabindex].product[index].title,
           price: Number(this.items[Tabindex].product[index].price),
           sum: this.price + Number(this.items[Tabindex].product[index].price),
+
           casher: this.loggedInUser.name,
         });
         // this.title5.push(my_object.title);
@@ -434,11 +430,6 @@ export default {
 @font-face {
   font-family: "Gideon Roman";
   src: url("../../assets/fonts/GideonRoman-Regular.ttf");
-}
-.closeSuccess {
-  position: absolute;
-  right: 0;
-  z-index: 999;
 }
 
 .homePage {
@@ -530,7 +521,7 @@ export default {
 .list {
   position: relative;
   display: flex;
-color: #000;
+  color: #000;
   justify-content: space-between;
   flex-direction: row-reverse;
   background: rgb(62, 65, 157);
@@ -568,7 +559,7 @@ color: #000;
   height: 30%;
   text-align: center;
   line-height: 1.5;
-  color:#000
+  color: #000;
 }
 
 .price {
