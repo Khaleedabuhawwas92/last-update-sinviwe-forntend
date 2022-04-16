@@ -17,6 +17,6 @@ Vue.directive("fontSize", {
 });
 Vue.directive("GE-Hili-font", {
   update: function (el, binding) {
-    el.style.fontFamily = "GE-Hili ";
+    el.style.fontFamily = "GE-Hili";
   },
 });

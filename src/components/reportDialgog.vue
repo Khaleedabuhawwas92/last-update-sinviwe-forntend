@@ -10,7 +10,7 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
       .con
         v-tabs(v-model="tab", centered, grow, dark, background-color="#2c3e50")
           v-tabs-slider(color="#e55039")
-          v-tab.text-h4(v-for="item in items2", :key="item")
+          v-tab.text-h4.tabs-style(v-for="item in items2", :key="item")
             | {{ item }}
             v-icon(x-large="")
     v-tabs-items(v-model="tab")
@@ -24,21 +24,24 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
           single-line,
           hide-details
         )
-        v-data-table.elevation-1.text-h2.report-info(
+        v-data-table.elevation-1.text-h2.report-info.elevation-1(
           :headers="headers",
           :items="desserts",
           :search="search",
-          :items-per-page="10"
+          item-key="createdAt",
+          sort-by="createdAt",
+          group-by="createdAt"
         )
-          template(
-            v-slot:item.actions="{ item }",
-            v-if="loggedInUser.isAdmain"
-          )
+          template(v-slot:item.actions="{ item }")
             v-icon.mr-2(small="", @click="editItem(item)")
               | mdi-pencil
             v-icon(small="", @click="deleteItem(item, item.id)")
               | mdi-delete
-        v-row.total-of-report {{ totalReport }} JD
+          template(v-slot:body.append)
+            tr
+              td(colspan="3")
+              td.total-of-report(colspan="3", v-if="loggedInUser.name") {{ totalReport }} JD
+
       v-tab-item
         v-card(flat="")
           v-card-title.text-h3
@@ -55,9 +58,15 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
               :headers="expensesheaders",
               :items="expenses",
               :search="searchexpenses",
-              :items-per-page="10"
+              :items-per-page="10",
+              item-key="createdAt",
+              sort-by="createdAt",
+              group-by="createdAt"
             )
-            v-row.total-of-expenses {{ totalExpenses }} JD
+              template(v-slot:body.append)
+                tr(v-if="!createdAt")
+                  td
+                  td.total-of-report(colspan="1") {{ totalExpenses }} JD
 
       v-tab-item
         v-card(flat="")
@@ -131,7 +140,9 @@ export default {
         { text: "Sumation", value: "sumation" },
         // { text: "Descraption", value: "discraption" },
         { text: "Casher Name", value: "casherName" },
+        { text: "time", value: "time" },
         { text: "Created", value: "createdAt" },
+
         { text: "Actions", value: "actions", sortable: false },
       ],
       desserts: [],
@@ -139,29 +150,38 @@ export default {
   },
   async fetch() {
     await this.$axios
-      .get("http://localhost:8000/api/reportItems/displaypublished")
+      .get(
+        "http://localhost:8000/api/reportItems/displaypublished/" +
+          this.loggedInUser.name
+      )
       .then((result) => {
         this.items = result.data;
         this.desserts = result.data;
         this.desserts.forEach((element) => {
           element.createdAt = this.$moment(element.createdAt).format(
-            "DD/MM/YYYY  --- hh:mm:ss a"
+            "DD/MM/YYYY"
           );
+
           this.totalReport += element.sumation;
         });
+        console.log(this.items);
       })
       .catch((err) => {
         console.log(err);
       });
     await this.$axios
-      .get("http://localhost:8000/api/expenses/published")
+      .get(
+        "http://localhost:8000/api/expenses/published/" + this.loggedInUser.name
+      )
       .then((result) => {
         this.expenses = result.data;
         this.expenses.forEach((element) => {
           this.totalExpenses += element.value;
           element.createdAt = this.$moment(element.createdAt).format(
-            "DD/MM/YYYY  --- hh:mm:ss a"
+            "DD/MM/YYYY"
           );
+
+          console.log(this.fletaras);
         });
       })
       .catch((err) => {
@@ -220,7 +240,7 @@ export default {
   margin-top: 20px;
   margin-bottom: 20px;
   margin-left: 546px;
-  font-size: 25px;
+  font-size: 25px !important;
 }
 .total-of-expenses {
   z-index: 1;
@@ -231,6 +251,9 @@ export default {
 }
 .report-info {
   font-weight: bold;
+}
+.tabs-style {
+  font-family: "GE-Hili" !important;
 }
 
 .con {
