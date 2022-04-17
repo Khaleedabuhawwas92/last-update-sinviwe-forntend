@@ -6,17 +6,18 @@
     v-btn
       span(v-GE-Hili-font, v-fontSize.bold.color="20") خروج
       v-icon(@click="dialogClose = true", x-large="") mdi-exit-to-app
-
-    v-btn(@click="dialogReport = true", v-if="loggedInUser.isAdmain")
+    v-btn(@click="dialogReport = true"  @dblclick="dialogReport = false")
       span(v-GE-Hili-font, v-fontSize.bold.color="20") التقارير
       v-icon(x-large="") mdi-chart-box
+    v-btn(@click="dialogExpenses = true")
+      span(v-GE-Hili-font, v-fontSize.bold.color="20") المصاريف
+      v-icon(x-large="") mdi-cart-outline
     v-btn(@click="dialogPurchases = true")
-      span(v-GE-Hili-font, v-fontSize.bold.color="20") مشتريات
+      span(v-GE-Hili-font, v-fontSize.bold.color="20") المشتريات
       v-icon(x-large="") mdi-cart-outline
     v-btn
       span(v-GE-Hili-font, v-fontSize.bold.color="20") الرئيسة
       v-icon(x-large="") mdi-home
-
   v-card.mt-15(color="#DDD0D0")
     v-tabs.tabs(v-model="tab", background-color="#012e48", grow, dark)
       v-tabs-slider.px-14(color="#fff")
@@ -32,7 +33,7 @@
 
     v-container#scroll-target.overflow-y-auto(style="height: 882px")
       v-tabs-items.pa-9(v-model="tab")
-        v-tab-item(v-for="(item, Tabindex) in items", :key="tabindex")
+        v-tab-item(v-for="(item, Tabindex) in items", :key="Tabindex")
           v-card(flat="", color="#DDD0D0")
             v-row.d-flex.justify-end
               v-card.ma-6.rounded-5.text-center(
@@ -56,21 +57,23 @@
                     v-card-text.text-h6.card-text {{ items.price }}JD
 
   <reportDialgog :dialogReport="dialogReport"  @toggle="dialogReport = !dialogReport" v-if="dialogReport" />
+  <expensesDialog :dialogExpenses="dialogExpenses"  @toggle="dialogExpenses = !dialogExpenses" v-if="dialogExpenses" />
   <purchasesDialog :dialogPurchases="dialogPurchases"  @toggle="dialogPurchases = !dialogPurchases" v-if="dialogPurchases" />
   <userDialog :dialogUser="dialogUser"  @toggle="dialogUser = !dialogUser" v-if="dialogUser" />
   <exitDialog :dialogClose="dialogClose"  @toggle="exit" v-if="dialogClose" :test="ooo" />
 </template>
 <script>
-import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
+import { mapGetters } from "vuex";
 export default {
   props: ["items", "price"],
-
   data() {
     return {
+
       ooo: "khaleed",
       dialogUser: false,
       dialogReport: false,
       dialogPurchases: false,
+      dialogExpenses: false,
       dialogClose: false,
       tab: null,
       active: false,
@@ -79,32 +82,10 @@ export default {
   },
   computed: {
     ...mapGetters(["isAuthenticated", "loggedInUser"]),
-    headers() {
-      return [
-        {
-          text: "Dessert (100g serving)",
-          align: "start",
-          sortable: false,
-          value: "name",
-        },
-        {
-          text: "Calories",
-          value: "calories",
-          filter: (value) => {
-            if (!this.calories) return true;
-
-            return value < parseInt(this.calories);
-          },
-        },
-        { text: "Fat (g)", value: "fat" },
-        { text: "Carbs (g)", value: "carbs" },
-        { text: "Protein (g)", value: "protein" },
-        { text: "Iron (%)", value: "iron" },
-      ];
-    },
   },
 
   methods: {
+
     tests() {
       this.active = true;
       alert("halwwooooo word");
@@ -117,15 +98,15 @@ export default {
       this.active = false;
     },
     choese: function () {
-      new Audio(
-        "http://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"
-      ).play();
+      // new Audio(
+      //   "http://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3"
+      // ).play();
     },
     exit: function () {
       this.dialogClose = !this.dialogClose;
-      new Audio(
-        "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"
-      ).play();
+      // new Audio(
+      //   "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav"
+      // ).play();
     },
   },
 
@@ -150,8 +131,8 @@ export default {
   position: absolute;
   right: 0;
   overflow: hidden;
-  width: 120px !important;
-  height: 120px !important;
+  width: 70px !important;
+  height: 70px !important;
   background-color: #27ae60 !important;
   color: white;
   cursor: pointer;
@@ -250,6 +231,7 @@ export default {
   font-weight: bold;
   font-size: 15px;
 }
+
 
 .card-title {
   font-size: 20px;

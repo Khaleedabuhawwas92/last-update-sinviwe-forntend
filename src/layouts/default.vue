@@ -2,7 +2,6 @@
   <div>
     <v-app>
       <errorMassege v-if="$nuxt.isOffline" />
-
       <nuxt v-else />
     </v-app>
   </div>

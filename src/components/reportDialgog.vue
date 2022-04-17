@@ -1,245 +1,227 @@
 <template lang="pug">
 v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
   v-card(tile="")
-    v-toolbar(dark="", color="#012e48", height="100px", background-color="red")
-      v-btn(icon="", dark="", @click="clickHandler")
+    v-toolbar(dark, color="#012e48", height="100px", background-color="red")
+      v-btn(icon="", @click="clickHandler")
         v-icon mdi-close
-      v-toolbar-title التقارير
-
+      v-toolbar-title.text-h4
+        | التقارير
       v-spacer
       .con
-        v-tabs(
-          v-model="tab",
-          align-with-title="",
-          centered,
-          width="250px",
-          grow
-        )
-          v-tabs-slider(color="yellow")
-          v-tab(v-for="item in items", :key="item")
+        v-tabs(v-model="tab", centered, grow, dark, background-color="#2c3e50")
+          v-tabs-slider(color="#e55039")
+          v-tab.text-h4.tabs-style(v-for="item in items2", :key="item")
             | {{ item }}
-
+            v-icon(x-large="")
     v-tabs-items(v-model="tab")
-      v-tab-item(v-for="item in items", :key="item")
+      v-tab-item
+        v-card-title.text-h3
+          | المبيعات
+        v-text-field(
+          v-model="search",
+          append-icon="mdi-magnify",
+          label="Search",
+          single-line,
+          hide-details
+        )
+        v-data-table.elevation-1.text-h2.report-info.elevation-1(
+          :headers="headers",
+          :items="desserts",
+          :search="search",
+          item-key="createdAt",
+          sort-by="createdAt",
+          group-by="createdAt"
+        )
+          template(v-slot:item.actions="{ item }")
+            v-icon.mr-2(small="", @click="editItem(item)")
+              | mdi-pencil
+            v-icon(small="", @click="deleteItem(item, item.id)")
+              | mdi-delete
+          template(v-slot:body.append)
+            tr
+              td(colspan="3")
+              td.total-of-report(colspan="3", v-if="loggedInUser.name") {{ totalReport }} JD
+
+      v-tab-item
         v-card(flat="")
-          v-text-field(
-            v-model="search",
-            append-icon="mdi-magnify",
-            label="Search",
-            single-line="",
-            hide-details=""
-          )
-          v-data-table.elevation-1(
-            :headers="headers",
-            :items="desserts",
-            :items-per-page="16",
-            :search="search"
-          )
+          v-card-title.text-h3
+            | المصاريف
+          v-card-text
+            v-text-field(
+              v-model="searchexpenses",
+              append-icon="mdi-magnify",
+              label="Search",
+              single-line,
+              hide-details
+            )
+            v-data-table.elevation-1.text-h2.report-info(
+              :headers="expensesheaders",
+              :items="expenses",
+              :search="searchexpenses",
+              :items-per-page="10",
+              item-key="createdAt",
+              sort-by="createdAt",
+              group-by="createdAt"
+            )
+              template(v-slot:body.append)
+                tr(v-if="!createdAt")
+                  td
+                  td.total-of-report(colspan="1") {{ totalExpenses }} JD
+
+      v-tab-item
+        v-card(flat="")
+          v-card-title.text-h5
+            | المشتريات
+          v-card-text
+            v-text-field(
+              v-model="searchexpenses",
+              append-icon="mdi-magnify",
+              label="Search",
+              single-line,
+              hide-details
+            )
+            v-data-table.elevation-1.text-h2.report-info(
+              :headers="purchaseheaders",
+              :items="purchase",
+              :search="searchexpenses",
+              :items-per-page="10"
+            )
+            v-row.total-of-purchase {{ totalPurchase }} JD
+      v-tab-item
+        v-card(flat="")
+          v-card-title.text-h5
+            | An even better title
+          v-card-text
+            p
+              | Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed hendrerit. Maecenas malesuada. Vestibulum ullamcorper mauris at ligula. Proin faucibus arcu quis ante.
+            p.mb-0
+              | $moment("")
 
   v-row(justify="center")
 </template>
 <script>
+import { mapGetters } from "vuex";
 export default {
   props: ["dialogReport"],
   data() {
     return {
       tab: null,
+      expenses: [],
+      purchase: [],
+      totalPurchase: 0,
+      totalExpenses: 0,
+      totalReport: 0,
       search: "",
-      items: ["ابراهيم المنيك", "shopping", "videos", "images", "news"],
+      searchexpenses: "",
+      items2: ["المبيعات", "المصاريف", "المشتريات", "اجمالي الكاش "],
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       value: 1,
-      search: "",
+      purchaseheaders: [
+        { text: "description", value: "description" },
+        { text: "Value", value: "value" },
+        { text: "Casher Name", value: "casherName" },
+        { text: "Wheigt", value: "wheigt" },
+        { text: "Created At", value: "createdAt" },
+      ],
+      expensesheaders: [
+        { text: "description", value: "description" },
+        { text: "Value", value: "value" },
+        { text: "Casher Name", value: "casherName" },
+        { text: "Created At", value: "createdAt" },
+      ],
       headers: [
         {
-          text: "Dessert (100g serving)",
+          text: "All Items",
           align: "start",
-          sortable: false,
-          value: "name",
+          value: "allIetms",
         },
-        { text: "Calories", value: "calories" },
-        { text: "Fat (g)", value: "fat" },
-        { text: "Carbs (g)", value: "carbs" },
-        { text: "Protein (g)", value: "protein" },
-        { text: "Iron (%)", value: "iron" },
+        { text: "Total Account", value: "totalAccount" },
+        { text: "Tax", value: "tax" },
+        { text: "Sumation", value: "sumation" },
+        // { text: "Descraption", value: "discraption" },
+        { text: "Casher Name", value: "casherName" },
+        { text: "time", value: "time" },
+        { text: "Created", value: "createdAt" },
+
+        { text: "Actions", value: "actions", sortable: false },
       ],
-      desserts: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: "1%",
-        },
-        {
-          name: "Ice cream sandwich",
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          iron: "1%",
-        },
-        {
-          name: "Eclair",
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          iron: "7%",
-        },
-        {
-          name: "Cupcake",
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          iron: "8%",
-        },
-        {
-          name: "Gingerbread",
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          iron: "16%",
-        },
-        {
-          name: "Jelly bean",
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          iron: "0%",
-        },
-        {
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          iron: "2%",
-        },
-        {
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          iron: "45%",
-        },
-        {
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          iron: "22%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
-        },
-      ],
+      desserts: [],
     };
   },
-async fetch() {
-   await this.$axios.get("http://localhost:8000/api/reportItems").then((result) => {
+  async fetch() {
+    await this.$axios
+      .get(
+        "http://localhost:8000/api/reportItems/displaypublished/" +
+          this.loggedInUser.name
+      )
+      .then((result) => {
+        this.items = result.data;
+        this.desserts = result.data;
+        this.desserts.forEach((element) => {
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY"
+          );
 
-    console.log(result.data);
+          this.totalReport += element.sumation;
+        });
+        console.log(this.items);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    await this.$axios
+      .get(
+        "http://localhost:8000/api/expenses/published/" + this.loggedInUser.name
+      )
+      .then((result) => {
+        this.expenses = result.data;
+        this.expenses.forEach((element) => {
+          this.totalExpenses += element.value;
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY"
+          );
 
-  }).catch((err) => {
-console.log(err);
-  });
-
-},
+          console.log(this.fletaras);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    await this.$axios
+      .get(
+        "http://localhost:8000/api/purchase/published/" + this.loggedInUser.name
+      )
+      .then((result) => {
+        this.purchase = result.data;
+        this.purchase.forEach((element) => {
+          element.createdAt = this.$moment(element.createdAt).format(
+            "DD/MM/YYYY  --- hh:mm:ss a"
+          );
+          this.totalPurchase += element.value;
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
   methods: {
+    deleteItem(item, id) {
+      console.log(id);
+      this.$axios
+        .get("http://localhost:8000/api/reportItems/undisplaypublished/" + id)
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     clickHandler(e) {
       this.$emit("toggle");
     },
   },
   computed: {
-    color() {
-      switch (this.value) {
-        case 0:
-          return "#000";
-        case 1:
-          return "#000";
-        case 2:
-          return "#000";
-        case 3:
-          return "#000";
-        default:
-          return "#000";
-      }
-    },
+    ...mapGetters(["isAuthenticated", "loggedInUser"]),
   },
 };
 </script>
@@ -248,6 +230,34 @@ console.log(err);
   font-family: "GE-Hili";
   src: url("../assets/fonts/GE-Hili-Light_15.otf");
 }
+.total-of-purchase {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 324px;
+  font-size: 25px;
+}
+.total-of-report {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 546px;
+  font-size: 25px !important;
+}
+.total-of-expenses {
+  z-index: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 397px;
+  font-size: 25px;
+}
+.report-info {
+  font-weight: bold;
+}
+.tabs-style {
+  font-family: "GE-Hili" !important;
+}
+
 .con {
   color: rgb(5, 27, 27);
   font-family: "GE-Hili";

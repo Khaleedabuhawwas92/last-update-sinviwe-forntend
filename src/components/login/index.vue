@@ -8,6 +8,7 @@
     transition="scale-transition"
   )
     | الرجاء التاكد من الرقم السري او اسم المستخدم
+
   v-container.tow-bxos
     v-row
       v-col.box-style
@@ -54,6 +55,7 @@
 export default {
   data() {
     return {
+       success: true,
       error: "",
       valid: false,
       showPassword: false,
@@ -84,6 +86,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+
 .alert-notfations {
   position: absolute;
   width: 100%;

@@ -1,5 +1,6 @@
 module.exports = {
   srcDir: "src/",
+  ssr: true,
   config: {
     nuxt: {
       host: "0.0.0.0",
@@ -14,7 +15,6 @@ module.exports = {
 
   components: true,
 
-  mode: "spa",
   axios: {
     //proxy: true
     baseURL: process.env.API_URL,
@@ -44,7 +44,10 @@ module.exports = {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ["@nuxtjs/vuetify"],
+  buildModules: ["@nuxtjs/vuetify", "@nuxtjs/moment"],
+  // moment: {
+  //   locales: ["en-US"],
+  // },
   /*
    ** Nuxt.js modules
    */

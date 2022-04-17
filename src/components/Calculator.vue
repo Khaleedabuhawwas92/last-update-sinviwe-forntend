@@ -1,10 +1,13 @@
 <template>
+
   <div id="page">
+
+
     <div id="calc">
-      <div id="input" class="text-center">{{ current }}</div>
+      <div id="input" class="text-center p-7">{{ current }}</div>
       <h1>الرجاء ادخال القيمة</h1>
       <div class="buttons">
-        <button @click="clear">C</button>
+
 
         <button @click="buttonClick(1)">1</button>
         <button @click="buttonClick(2)">2</button>
@@ -20,6 +23,7 @@
 
         <!-- <button id="comma" @click="comma">.</button> -->
         <button id="0" @click="buttonClick(0)">0</button>
+        <button @click="clear">C</button>
         <button id="equals" @click="equals()">Enter</button>
       </div>
     </div>
@@ -39,7 +43,7 @@
           </v-card-text>
           <v-card-actions class="justify-end">
             <v-btn @click="confarim">تاكيد</v-btn>
-            <v-btn @click="dialog2.value =false ">الغاء</v-btn>
+            <v-btn @click="dialog2.value = false">الغاء</v-btn>
           </v-card-actions>
         </v-card>
       </template>
@@ -48,10 +52,12 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
-  props: ["price", "rowData", "dialogInvoice"],
+  props: ["price", "rowData", "dialogInvoice", "allIetms" ,"additions",],
   data() {
     return {
+      vv: [],
       dialog5: false,
       dialog2: false,
       current: "",
@@ -63,19 +69,36 @@ export default {
       tax: 0.16,
     };
   },
+  computed: {
+    ...mapGetters(["isAuthenticated", "loggedInUser"]),
+  },
   methods: {
     clickHandler(e) {
       this.$emit("toggle");
-
     },
 
     confarim() {
-      (this.current = "");
+      this.$axios
+        .post("http://localhost:8000/api/reportItems/", {
+          allIetms: this.allIetms,
+          sumation: this.price + this.price * this.tax,
+          totalAccount:this.price,
+          tax:this.price *this.tax,
+          casherName:this.loggedInUser.name,
+        })
+        .then(function (response) {
+          this.allIetms = [];
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      console.log(this.rowData);
+      this.current = "";
       this.clickHandler();
     },
     cansele() {
-      (this.current = "");
-
+      this.current = "";
     },
     buttonClick(value) {
       this.current = this.current + "" + value;
@@ -94,8 +117,9 @@ export default {
         (parseFloat(this.price) +
           parseFloat(this.price) * parseFloat(this.tax));
       this.dialog5 = true;
-
-      console.log(this.current);
+      console.log("......................................");
+      console.log(this.allIetms);
+      console.clear();
     },
     operatorSelection(operator) {
       this.operator = operator;
