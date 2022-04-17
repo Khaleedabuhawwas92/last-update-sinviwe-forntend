@@ -188,7 +188,9 @@ export default {
         console.log(err);
       });
     await this.$axios
-      .get("http://localhost:8000/api/purchase/published")
+      .get(
+        "http://localhost:8000/api/purchase/published/" + this.loggedInUser.name
+      )
       .then((result) => {
         this.purchase = result.data;
         this.purchase.forEach((element) => {
