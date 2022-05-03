@@ -10,7 +10,7 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
       .con
         v-tabs(v-model="tab", centered, grow, dark, background-color="#2c3e50")
           v-tabs-slider(color="#e55039")
-          v-tab.text-h4.tabs-style(v-for="item in items2", :key="item")
+          v-tab.text-h4.tabs-style(v-for="item in items2")
             | {{ item }}
             v-icon(x-large="")
     v-tabs-items(v-model="tab")
@@ -18,19 +18,21 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
         v-card-title.text-h3
           | المبيعات
         v-text-field(
-          v-model="search",
+          v-model="searchDesserts",
           append-icon="mdi-magnify",
           label="Search",
           single-line,
           hide-details
         )
-        v-data-table.elevation-1.text-h2.report-info.elevation-1(
+        v-data-table.elevation-1.text-h2.report-info(
           :headers="headers",
           :items="desserts",
-          :search="search",
-          item-key="createdAt",
+          :search="searchDesserts",
+          item-key="desserts",
           sort-by="createdAt",
-          group-by="createdAt"
+          group-by="created_on",
+          dense,
+          dark
         )
           template(v-slot:item.actions="{ item }")
             v-icon.mr-2(small="", @click="editItem(item)")
@@ -59,18 +61,19 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
               :items="expenses",
               :search="searchexpenses",
               :items-per-page="10",
-              item-key="createdAt",
+              item-key="expenses",
               sort-by="createdAt",
-              group-by="createdAt"
+              group-by="createdAt",
+              dark
             )
               template(v-slot:body.append)
-                tr(v-if="!createdAt")
+                tr
                   td
                   td.total-of-report(colspan="1") {{ totalExpenses }} JD
 
       v-tab-item
         v-card(flat="")
-          v-card-title.text-h5
+          v-card-title.text-h3
             | المشتريات
           v-card-text
             v-text-field(
@@ -84,18 +87,34 @@ v-dialog(v-model="clickHandler", fullscreen="", hide-overlay="")
               :headers="purchaseheaders",
               :items="purchase",
               :search="searchexpenses",
-              :items-per-page="10"
+              :items-per-page="10",
+              item-key="purchase",
+              sort-by="createdAt",
+              group-by="createdAt",
+              dark
             )
-            v-row.total-of-purchase {{ totalPurchase }} JD
+              template(v-slot:body.append)
+                tr
+                  td
+                  td.total-of-report(colspan="1") {{ totalPurchase }} JD
       v-tab-item
         v-card(flat="")
-          v-card-title.text-h5
-            | An even better title
+          v-card-title.text-h3
+            | اجمالي الكاش
           v-card-text
-            p
-              | Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed hendrerit. Maecenas malesuada. Vestibulum ullamcorper mauris at ligula. Proin faucibus arcu quis ante.
-            p.mb-0
-              | $moment("")
+          template
+            v-expansion-panels(dark, focusable, multiple, tile)
+              v-expansion-panel(v-for="(item, i) in purchase", :key="i")
+                v-expansion-panel-header
+                  | {{ item.createdAt }}
+                v-row
+                  v-col(cols="11")
+                    v-expansion-panel-content.text-h5
+                      | صافي الارباح {{ item.value }}
+                  v-col
+                    v-expansion-panel-content
+                      v-icon.mr-2(small="", @click="editItem(item)")
+                        | mdi-pencil
 
   v-row(justify="center")
 </template>
@@ -105,13 +124,16 @@ export default {
   props: ["dialogReport"],
   data() {
     return {
+      time3: "",
+      time2: Date,
+      panel: [],
       tab: null,
       expenses: [],
       purchase: [],
       totalPurchase: 0,
       totalExpenses: 0,
       totalReport: 0,
-      search: "",
+      searchDesserts: "",
       searchexpenses: "",
       items2: ["المبيعات", "المصاريف", "المشتريات", "اجمالي الكاش "],
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
@@ -141,7 +163,7 @@ export default {
         // { text: "Descraption", value: "discraption" },
         { text: "Casher Name", value: "casherName" },
         { text: "time", value: "time" },
-        { text: "Created", value: "createdAt" },
+        { text: "created_on", value: "created_on" },
 
         { text: "Actions", value: "actions", sortable: false },
       ],
@@ -155,16 +177,12 @@ export default {
           this.loggedInUser.name
       )
       .then((result) => {
-        this.items = result.data;
         this.desserts = result.data;
-        this.desserts.forEach((element) => {
-          element.createdAt = this.$moment(element.createdAt).format(
-            "DD/MM/YYYY"
-          );
 
+        this.desserts.forEach((element) => {
           this.totalReport += element.sumation;
+          this.time3 = element.createdAt;
         });
-        console.log(this.items);
       })
       .catch((err) => {
         console.log(err);
@@ -180,8 +198,6 @@ export default {
           element.createdAt = this.$moment(element.createdAt).format(
             "DD/MM/YYYY"
           );
-
-          console.log(this.fletaras);
         });
       })
       .catch((err) => {

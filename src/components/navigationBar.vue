@@ -6,7 +6,7 @@
     v-btn
       span(v-GE-Hili-font, v-fontSize.bold.color="20") خروج
       v-icon(@click="dialogClose = true", x-large="") mdi-exit-to-app
-    v-btn(@click="dialogReport = true"  @dblclick="dialogReport = false")
+    v-btn(@click="dialogReport = true", @dblclick="dialogReport = false")
       span(v-GE-Hili-font, v-fontSize.bold.color="20") التقارير
       v-icon(x-large="") mdi-chart-box
     v-btn(@click="dialogExpenses = true")
@@ -54,7 +54,7 @@
                   .price2
                     v-card-text.price0 {{ items.title }}
                   .price1
-                    v-card-text.text-h6.card-text {{ items.price }}JD
+                    //- v-card-text.text-h6.card-text {{ items.price }}JD
 
   <reportDialgog :dialogReport="dialogReport"  @toggle="dialogReport = !dialogReport" v-if="dialogReport" />
   <expensesDialog :dialogExpenses="dialogExpenses"  @toggle="dialogExpenses = !dialogExpenses" v-if="dialogExpenses" />
@@ -68,7 +68,6 @@ export default {
   props: ["items", "price"],
   data() {
     return {
-
       ooo: "khaleed",
       dialogUser: false,
       dialogReport: false,
@@ -77,7 +76,6 @@ export default {
       dialogClose: false,
       tab: null,
       active: false,
-      price: 0,
     };
   },
   computed: {
@@ -85,14 +83,13 @@ export default {
   },
 
   methods: {
-
     tests() {
       this.active = true;
       alert("halwwooooo word");
     },
     clickHandler(Tabindex, indexRow) {
+      // this.price = +1;
       this.$emit("toggle", Tabindex, indexRow);
-      this.price = +1;
     },
     onClickOutside() {
       this.active = false;
@@ -231,7 +228,6 @@ export default {
   font-weight: bold;
   font-size: 15px;
 }
-
 
 .card-title {
   font-size: 20px;
