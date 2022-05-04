@@ -54,7 +54,7 @@
                   .price2
                     v-card-text.price0 {{ items.title }}
                   .price1
-                    //- v-card-text.text-h6.card-text {{ items.price }}JD
+                    v-card-text.text-h6.card-text {{ items.price }}JD
 
   <reportDialgog :dialogReport="dialogReport"  @toggle="dialogReport = !dialogReport" v-if="dialogReport" />
   <expensesDialog :dialogExpenses="dialogExpenses"  @toggle="dialogExpenses = !dialogExpenses" v-if="dialogExpenses" />

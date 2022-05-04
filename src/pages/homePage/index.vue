@@ -77,15 +77,15 @@
         .mr-4
           v-row.sum
             .col الضريبة
-            .col.num(v-model="sum") {{ price * this.tax }}
+            .col.num(v-model="price") {{ this.price * this.tax }}
             .col &#x62F;.&#x627;
           v-row.sum
             .col المجموع
-            .col.num(v-model="price") {{ price }}
+            .col.num(v-model="price") {{ this.price }}
             .col &#x62F;.&#x627;
           v-row.sum
             .col الحساب الاجمالي
-            //- .col.num(v-model="price") {{ this.price + this.price * this.tax }}
+            .col.num(v-model="price") {{ this.price + this.price * this.tax }}
             .col &#x62F;.&#x627;
         .buttons
           button.btu(@click="printInvoice") طباعة الفاتورة
@@ -372,14 +372,15 @@ export default {
           discraption: this.items[Tabindex].product[index].discraption,
           additions: this.items[Tabindex].product[index].additions,
           title: this.items[Tabindex].product[index].title,
-          price: this.items[Tabindex].product[index].price,
-          sum: this.price + this.items[Tabindex].product[index].price,
+          price: Number(this.items[Tabindex].product[index].price),
+          sum:  this.price +
+            Number(this.items[Tabindex].product[index].price).toFixed(2),
           casher: this.loggedInUser.name,
         });
         // this.title5.push(my_object.title);
         window.scrollBy(100, 0);
         this.rowData.push(my_object);
-        this.price += my_object.price ;
+        this.price = my_object.price + this.price;
       }
       new Audio(
         "http://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg"
