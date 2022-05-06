@@ -36,10 +36,10 @@
         v-tab-item(v-for="(item, Tabindex) in items", :key="Tabindex")
           v-card(flat="", color="#DDD0D0")
             v-row.d-flex.justify-end
-              v-card.ma-6.rounded-5.text-center(
+              v-card.ma-6.rounded-xl.text-center(
                 v-click-outside="onClickOutside",
                 width="200",
-                height="270",
+                height="200",
                 v-for="(items, indexRow) in item.product",
                 :key="indexRow",
                 @click="clickHandler(Tabindex, indexRow)",
@@ -47,20 +47,18 @@
               )
                 v-img.d-flex.image-content(
                   src="https://media.istockphoto.com/photos/cheese-burger-with-bacon-on-black-dark-background-picture-id1295796231?b=1&k=20&m=1295796231&s=170667a&w=0&h=lipbuWnWZE_-ScipwtVamsug7sd4j6hxiIUN0PkwWD8=",
-                  height="280",
+                  height="200",
                   lazy-src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
                 )
-                  .con1
-                  .price2
-                    v-card-text.price0 {{ items.title }}
+                  v-card-text.price0 {{ items.title }}
                   .price1
-                    v-card-text.text-h6.card-text {{ items.price }}JD
+                    v-card-text.text-h6.card-text {{ items.price }} JD
 
   <reportDialgog :dialogReport="dialogReport"  @toggle="dialogReport = !dialogReport" v-if="dialogReport" />
   <expensesDialog :dialogExpenses="dialogExpenses"  @toggle="dialogExpenses = !dialogExpenses" v-if="dialogExpenses" />
   <purchasesDialog :dialogPurchases="dialogPurchases"  @toggle="dialogPurchases = !dialogPurchases" v-if="dialogPurchases" />
   <userDialog :dialogUser="dialogUser"  @toggle="dialogUser = !dialogUser" v-if="dialogUser" />
-  <exitDialog :dialogClose="dialogClose"  @toggle="exit" v-if="dialogClose" :test="ooo" />
+  <exitDialog :dialogClose="dialogClose"  @toggle="exit" v-if="dialogClose" :test="loggedInUser.name" />
 </template>
 <script>
 import { mapGetters } from "vuex";
@@ -194,7 +192,6 @@ export default {
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif !important;
   font-weight: bold;
   z-index: 1;
-  text-shadow: 4px 5px 2px #7eabb8;
   line-height: 0.9;
   font-style: italic;
 }
@@ -206,21 +203,11 @@ export default {
 
 .price1 {
   position: absolute;
-  background: rgb(2, 0, 36);
-  background: linear-gradient(
-    90deg,
-    rgba(2, 0, 36, 1) 2%,
-    rgba(120, 194, 181, 1) 100%,
-    rgba(0, 212, 255, 1) 100%
-  );
   color: #f4f4f5;
-  width: 50%;
-  border-radius: 50%;
-  top: 170px;
-
+  width: 100%;
+  top: 150px;
   margin: 0 auto;
-  border: #6c99b3 solid 5px;
-  box-shadow: 5px 5px 22px 19px #aa191983;
+
 }
 
 .list {

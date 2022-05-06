@@ -1,25 +1,23 @@
 <template lang="pug">
-v-dialog(v-model="clickHandler", max-width="290", persistent)
-  v-card
+v-dialog(v-model="clickHandler", max-width="400", persistent)
+  v-card.text-center(shaped)
     v-card-title.text-h5
-      | Use Google&apos;s location service?
-    v-card-text(v-model="test")
-      | {{test}}
+      | هل انتا متاكد من تسجيل الخروج
+    v-card-text.text-h3.subTitle(v-model="test")
+      |
+      | {{ test }}
     v-card-actions
       v-spacer
-      v-btn(color="green darken-1", text="", @click="clickHandler")
-        | Disagree
-      v-btn(color="green darken-1", text="", @click="close")
-        | Agree
-
+      v-btn.text-h4(color="red darken-1", text="", @click="clickHandler")
+        | الغاء
+      v-btn.text-h4(color="green darken-1", text="", @click="close")
+        | موافق
 </template>
 <script>
 export default {
-   props: ["dialogClose", "test"],
+  props: ["dialogClose", "test"],
   data() {
-    return {
-
-    };
+    return {};
   },
 
   methods: {
@@ -28,8 +26,13 @@ export default {
     },
     close: function () {
       this.$auth.logout();
-     this.$router.go(-1)
+      this.$router.go(-1);
     },
   },
 };
 </script>
+<style  scoped>
+.subTitle{
+  color: blue !important;
+}
+</style>
