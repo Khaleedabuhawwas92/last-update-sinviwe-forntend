@@ -1,6 +1,6 @@
 module.exports = {
   srcDir: "src/",
-  ssr: true,
+  ssr: false,
   config: {
     nuxt: {
       host: "0.0.0.0",
